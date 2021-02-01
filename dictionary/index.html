@@ -1,16 +1,124 @@
 <!doctype HTML>
+@@BASE
 <html>
-
-<head>
-    <title>
-        Index
-    </title>
-</head>
-
-<body>
-    <h1>
-        Hello! Now you know how to serve HTML files using Node.js!!!
-    </h1>
-</body>
-
+    <head>
+        <title>
+            Dictionary Home
+        </title>
+    </head>
+    @@HEADER
+    <script>
+        function queryTerm() {
+            var term = document.getElementById("term");
+            var url = url = 'http://michael.wacaser.org/dictionary/search/' + term.value;
+            window.fetch(url).then(res => res.json()).then(data => {
+                console.log(data);
+                var table = document.getElementById("results");
+                table.textContent = '';
+                for(var entry of data){
+                    var row = document.createElement("tr");
+                    var key = document.createElement("td");
+                    key.append(entry.Display);
+                    var value = document.createElement("td");
+                    value.append(entry.Description);
+                    var list = document.createElement("td");
+                    list.append(entry.IDList);
+                    var btn = document.createElement("td");
+                    btn.innerHTML = '<button onclick="editWord(\'' + entry.IDList + '\', \'' + entry.Description + '\')">Edit</button>';
+                    row.appendChild(key);
+                    row.appendChild(value);
+                    row.appendChild(list);
+                    row.appendChild(btn);
+                    table.appendChild(row);
+                }
+            });
+        }
+        function editWord(editList, editDesc){
+            var idlist = document.getElementById("idlist");
+            var desc = document.getElementById("desc");
+            idlist.value = editList;
+            desc.value = editDesc;
+            desc.focus();
+        }
+        function addWord() {
+            var idlist = document.getElementById("idlist");
+            var desc = document.getElementById("desc");
+            var url = url = 'http://michael.wacaser.org/dictionary/add/' + idlist.value + '/' + desc.value;
+            window.fetch(url).then(res => res.json()).then(data => {
+                console.log(data);
+                queryTerm();
+                idlist.value = '';
+                desc.value = '';
+                idlist.focus();
+            });
+        }
+    </script>
+    <body>
+        <h1>
+            Dictionary
+        </h1>
+        <div class="search">
+            <input type="text" id="term" />
+            <button onclick="queryTerm()" id="search">Search</button>
+        </div>
+        <br />
+        <div class="add">
+            <input type="text" id="idlist" />
+            <input type="text" id="desc" />
+            <button onclick="addWord()" id="add">Add</button>
+        </div>
+        <br />
+        <div class="results">
+            <table>
+                <thead>
+                    <th>Key</th>
+                    <th>Description</th>
+                    <th>IDList</th>
+                    <th></th>
+                </thead>
+                <tbody id="results">
+                    <tr>
+                        <td>
+                            Value
+                        </td>
+                        <td>
+                            Words
+                        </td>
+                        <td>
+                            Numbers
+                        </td>
+                        <td>
+                            Button
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+    <script>
+        var submit = document.getElementById("term");
+        submit.addEventListener("keyup", event => {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                document.getElementById("search").click();
+            }
+        });
+        var idlist = document.getElementById("idlist");
+        idlist.addEventListener("keyup", event => {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                document.getElementById("add").click();
+            }
+        });
+        var desc = document.getElementById("desc");
+        desc.addEventListener("keyup", event => {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                document.getElementById("add").click();
+            }
+        });
+    </script>
 </html>
