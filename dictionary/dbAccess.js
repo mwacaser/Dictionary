@@ -1,6 +1,8 @@
 var mysql = require('mysql');
 var dictDB = {};
 
+var verifyIDList = list => /^(\s*[01][0-9a-fA-F]\s*)(,\s*[01][0-9a-fA-F]\s*)*$/.test(list);
+
 var pool = mysql.createPool({
     host: "localhost",
     port: "3306",
@@ -24,19 +26,11 @@ dictDB.searchWordsByID = (term, callback) => {
 
 dictDB.searchWords = (term, callback) => {
     var terms = term.match(/\b\w+\b/g);
-    if (!terms || !terms.length) {
-        terms = [""];
-    }
-    var whereTerms = terms.map(w => "IDList LIKE '%" + w + "%' or Display LIKE '%" + w + "%' or Description LIKE '%" + w + "%'");
-    var whereClause = whereTerms.join(" OR ");
+    var whereClause = terms && terms.map(w => "IDList LIKE '%" + w + "%' or Display LIKE '%" + w + "%' or Description LIKE '%" + w + "%'").join(" OR ") || '1';
     pool.query("SELECT ID, Description, Display, IDList FROM `DisplayWords` where " + whereClause, (err, result) => {
         if (err) throw err;
         callback(err, result);
     });
-};
-
-var verifyIDList = list => {
-    return /^(\s*[01][0-9a-fA-F]\s*)(,\s*[01][0-9a-fA-F]\s*)*$/.test(list);
 };
 
 dictDB.addWord = (list, desc, callback) => {
@@ -70,6 +64,15 @@ dictDB.addWord = (list, desc, callback) => {
     } else {
         callback("IDList was invalid");
     }
+}
+
+dictDB.delWord = (id, callback) => {
+    var query = "DELETE FROM `KeyWord` WHERE `ID` = " + id;
+    console.error(query);
+    pool.query(query, (err, result) => {
+        if (err) throw err;
+        callback(err, result);
+    });
 }
 
 module.exports = dictDB;

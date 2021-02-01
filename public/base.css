@@ -1,11 +1,17 @@
 body {
-    margin:0;
+    grid-template-areas:
+    'header header'
+    'menu main';
+    grid-gap: 8px;
+    display: grid;
+    margin: 0;
     background-color: black;
     color: whitesmoke;
     text-align: center;
 }
 
 .header {
+    grid-area: header;
     width: 100%;
     height: 3em;
     background-color: brown;
@@ -19,8 +25,18 @@ body {
     height: 100%;
 }
 
-.search {
-    text-align: center;
+.menu {
+    grid-area: menu;
+}
+
+.main {
+    grid-area: main;
+    display: flex;
+}
+
+.left {
+    text-align: left;
+    display: inline-block;
 }
 
 .results {

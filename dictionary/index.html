@@ -10,89 +10,116 @@
     <script>
         function queryTerm() {
             var term = document.getElementById("term");
-            var url = url = 'http://michael.wacaser.org/dictionary/search/' + term.value;
+            var url = url = 'http://michael.wacaser.org/dictionary/word/' + term.value;
             window.fetch(url).then(res => res.json()).then(data => {
                 console.log(data);
                 var table = document.getElementById("results");
                 table.textContent = '';
                 for(var entry of data){
                     var row = document.createElement("tr");
+
                     var key = document.createElement("td");
                     key.append(entry.Display);
+                    row.appendChild(key);
+
                     var value = document.createElement("td");
                     value.append(entry.Description);
+                    row.appendChild(value);
+
                     var list = document.createElement("td");
                     list.append(entry.IDList);
-                    var btn = document.createElement("td");
-                    btn.innerHTML = '<button onclick="editWord(\'' + entry.IDList + '\', \'' + entry.Description + '\')">Edit</button>';
-                    row.appendChild(key);
-                    row.appendChild(value);
                     row.appendChild(list);
-                    row.appendChild(btn);
+
+                    var ebtn = document.createElement("td");
+                    ebtn.innerHTML = '<button onclick="editWord(\'' + entry.IDList + '\', \'' + entry.Description + '\')">Edit</button>';
+                    row.appendChild(ebtn);
+
+                    var dbtn = document.createElement("td");
+                    dbtn.innerHTML = '<button onclick="delWord(\'' + entry.ID + '\')">Del</button>';
+                    row.appendChild(dbtn);
+
                     table.appendChild(row);
                 }
             });
         }
-        function editWord(editList, editDesc){
-            var idlist = document.getElementById("idlist");
-            var desc = document.getElementById("desc");
-            idlist.value = editList;
-            desc.value = editDesc;
-            desc.focus();
-        }
         function addWord() {
             var idlist = document.getElementById("idlist");
             var desc = document.getElementById("desc");
-            var url = url = 'http://michael.wacaser.org/dictionary/add/' + idlist.value + '/' + desc.value;
-            window.fetch(url).then(res => res.json()).then(data => {
-                console.log(data);
+            var url = url = 'http://michael.wacaser.org/dictionary/word/' + idlist.value;
+            var data = { "desc": desc.value };
+            console.log(data);
+            window.fetch(url, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(res => res.json()).then(result => {
+                console.log(result);
                 queryTerm();
                 idlist.value = '';
                 desc.value = '';
                 idlist.focus();
             });
         }
+        function editWord(editList, editDesc) {
+            var idlist = document.getElementById("idlist");
+            var desc = document.getElementById("desc");
+            idlist.value = editList;
+            desc.value = editDesc;
+            desc.focus();
+        }
+        function delWord(delID){
+            if(!confirm("You are about to delete a word! Press OK to continue.")){
+                return;
+            }
+            var url = url = 'http://michael.wacaser.org/dictionary/word/' + delID;
+            window.fetch(url, { method: "DELETE" }).then(res => res.json()).then(data => {
+                console.log(data);
+                queryTerm();
+            });
+        }
     </script>
     <body>
-        <h1>
-            Dictionary
-        </h1>
-        <div class="search">
-            <input type="text" id="term" />
-            <button onclick="queryTerm()" id="search">Search</button>
-        </div>
-        <br />
-        <div class="add">
-            <input type="text" id="idlist" />
-            <input type="text" id="desc" />
-            <button onclick="addWord()" id="add">Add</button>
-        </div>
-        <br />
-        <div class="results">
-            <table>
-                <thead>
-                    <th>Key</th>
-                    <th>Description</th>
-                    <th>IDList</th>
-                    <th></th>
-                </thead>
-                <tbody id="results">
-                    <tr>
-                        <td>
-                            Value
-                        </td>
-                        <td>
-                            Words
-                        </td>
-                        <td>
-                            Numbers
-                        </td>
-                        <td>
-                            Button
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="main">
+            <div class="left">
+                <div class="search">
+                    Keyword search: 
+                    <input type="text" id="term" />
+                    <button onclick="queryTerm()" id="search">Search</button>
+                </div>
+                <br />
+                <div class="add">
+                    Add/Edit Keyword:<br/>
+                    IDList: <input type="text" id="idlist" /><br/>
+                    Description: <input type="text" id="desc" />
+                    <button onclick="addWord()" id="add">Add</button>
+                </div>
+            </div>
+            <div class="results">
+                <table>
+                    <thead>
+                        <th>Key</th>
+                        <th>IDList</th>
+                        <th>Description</th>
+                        <th></th>
+                        <th></th>
+                    </thead>
+                    <tbody id="results">
+                        <tr>
+                            <td>
+                                Display
+                            </td>
+                            <td>
+                                IDList
+                            </td>
+                            <td>
+                                Description
+                            </td>
+                            <td>
+                                Edit
+                            </td>
+                            <td>
+                                Del
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </body>
     <script>
